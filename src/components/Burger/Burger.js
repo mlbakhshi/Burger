@@ -1,20 +1,55 @@
 import React from 'react';
 import BurgerIngredient from "./BurgerIngredient/BurgerIngredient";
 import classes from './Burger.module.css';
+import { withRouter } from 'react-router-dom';
 const Burger=(props)=>{
-let result=Object.keys(props.ingredients).length;
-if(result===0){
-    return(
-        <p>
-            Fill your Burger...
-        </p>
-    )
-}
-else {
-    return(
-       Object.keys(props.ingredients).map(id => <BurgerIngredient key={id} type={props.ingredients[id].type} number={props.ingredients[id].number} />)
-    )
-}
+    let result=3;
+    let ingredientsInfo=null;
+    console.log(props.ingredients);
+    console.log(props.ingredients.totalPrice);
+    let ingredients = props.ingredients.ingredients;
+    console.log(ingredients);
+    if(props.ingredients.totalPrice){
+        ingredientsInfo =
+            props.ingredients.ingredients.map(ingredient =>
+                <BurgerIngredient
+                    key={ingredient.id}
+                    type={ingredient.type}
+                    number={ingredient.number}
+                />);
+    }
+    else
+    {
+        ingredientsInfo =
+            props.ingredients.map(ingredient =>
+                <BurgerIngredient
+                    key={ingredient.id}
+                    type={ingredient.type}
+                    number={ingredient.number}
+                />);
+    }
+
+    if(result===0){
+        return(
+            <p>
+                <div className={classes.Burger}>
+                    <BurgerIngredient type="bread-top" />
+                    Fill your Burger...
+                    <BurgerIngredient type="bread-bottom" />
+                </div>
+            </p>
+        )
+    }
+    else {
+        return(
+            <div className={classes.Burger}>
+                <BurgerIngredient type="bread-top" />
+                {ingredientsInfo}
+                <BurgerIngredient type="bread-bottom" />
+            </div>
+
+        )
+    }
 
 };
-export default Burger;
+export default withRouter(Burger);

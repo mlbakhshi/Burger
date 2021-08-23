@@ -1,9 +1,9 @@
 import React from 'react'
-import Auxx from "../../../hoc/Auxx";
+import Auxx from "../../../hoc/Auxx/Auxx";
 import Button from "../../UI/Button/Button";
 
 const OrderSummery=(props)=>{
-    const ingredientSummary = props.ingredients.map((d) => <li key={d.type} style={{width:'30%'}}>{d.type}: {d.number}</li>);
+    const ingredientSummary = props.ingredients.map((d) => <li key={d.type} style={{width:'65%'}}>{d.type}: {d.number}</li>);
 
     return(
         <Auxx>
