@@ -11,99 +11,58 @@ import Snipper from "../../components/UI/snipper/snipper";
 import withErrorHandler from './../../hoc/withErrorHandler/withErrorHandler';
 import Auxx from "../../hoc/Auxx/Auxx";
 import {withRouter,useHistory,Redirect} from "react-router-dom";
+import {connect} from "react-redux";
+import * as actionType from './../../store/actions';
+import mapDispatchToProps from "react-redux/lib/connect/mapDispatchToProps";
+import mapStateToProps from "react-redux/lib/connect/mapStateToProps";
 
 const BurgerBuilder=()=> {
-    const [ingredients,setIngredients]=useState([
+    // const [ingredients,setIngredients]=useState([
         // {type:"salad",number:1},
         // {type:"bacon",number:1},
-    ]);
-    const [INGREDIENT_PRICES,setINGREDIENT_PRICES]=useState(
-        [
-            {type:"salad",price: 5},
-            {type:"cheese",price: 4},
-            {type: "meat",price:2},
-            {type: "bacon",price: 3}
-        ]);
-    const [totalPrice,setTotalPrice]=useState(4);
+    // ]);
+    // const [INGREDIENT_PRICES,setINGREDIENT_PRICES]=useState(
+    //     [
+    //         {type:"salad",price: 5},
+    //         {type:"cheese",price: 4},
+    //         {type: "meat",price:2},
+    //         {type: "bacon",price: 3}
+    //     ]);
+    // const [totalPrice,setTotalPrice]=useState(4);
     const [purchasable,setPurchasable]=useState(false);
     const [purchasing,setPurchasing]=useState(false);
     const [loading,setLoading]=useState(false);
     let history = useHistory();
+
+
+
     useEffect(() => {
-       fetch(`https://react-my-burger-7b5c9-default-rtdb.firebaseio.com/ingredients`)
-            .then(data => console.log(data))
-            .catch(error => console.error('Unable to get items.', error));
+       // fetch(`https://react-my-burger-7b5c9-default-rtdb.firebaseio.com/ingredients`)
+       //      .then(data => console.log(data))
+       //      .catch(error => console.error('Unable to get items.', error));
 
     })
 
-    const addIngredientHandler = (type) => {
-        let obj=null;
-        function findIngredient(type) {
-            return ingredients.filter(item => {
-                return item.type === type
-            })
-        }
-        function findPrice(type) {
-            return INGREDIENT_PRICES.filter(item => {
-                return item.type === type
-            })
-        }
-        obj=findIngredient(type);
-        let priceIngredient=findPrice(type);
-        let id=(Math.floor(Math.random()*50));
-        setIngredients([...ingredients,{type:type,number:1}]);
-        let Price=totalPrice+priceIngredient[0].price;
-        setTotalPrice(Price);
-        checkOrderHandler();
-    }
 
-
-    const moveIngredientHandler = (type) => {
-        let obj=null;
-        function b(type) {
-            return ingredients.filter(item => {
-                return item.type === type
-            })
+    const mapStateToProps=state=> {
+        return {
+            ings: state.ingredients,
+            price: state.totalPrice
         };
-        obj=b(type);
-        if(obj.length>0 )
-        {
-            let index=-1;
-            for(let i=0;i<ingredients.length;i++){
-                if(ingredients[i].type===type)
-                {
-                    index=i;
-                    break;
-                }
-            }
-
-            let temp=ingredients;
-            temp.splice(index,1)
-            setIngredients(temp);
-            function findPrice(type) {
-                return INGREDIENT_PRICES.filter(item => {
-                    return item.type === type
-                })
-            }
-            let priceIngredient=findPrice(type);
-            let Price=totalPrice-priceIngredient[0].price;
-            if(Price<=4){
-                Price=4;
-            }
-            setTotalPrice(Price);
-
-        }
-        else
-        {
-            return;
-        }
-
-        checkOrderHandler( );
     }
+    const mapDispatchToProps=dispatch=>{
+        return {
+            onIngredientAdded: (ingName) => dispatch({type: actionType.addIngredientHandler, ingredientName: ingName}),
+            onIngredientRemoved: (ingName) => dispatch({type: actionType.moveIngredientHandler, ingredientName: ingName})
+        }
+    }
+
+
+
 
 
     const checkOrderHandler=()=>{
-        if(totalPrice>4){
+        if(props.price>4){
             setPurchasable(true);
         }
         else
@@ -123,7 +82,7 @@ const BurgerBuilder=()=> {
         //     url.searchParams.append(ingredients[i].type, ingredients[i].number);
         // }
         //
-         history.push('/checkOut', {ingredients,totalPrice});
+         history.push('/checkOut', {ings,price});
     }
 
     const orderedHandler=()=>{
@@ -139,27 +98,28 @@ const BurgerBuilder=()=> {
         orderSummary =<Snipper />
     }
     let burger=<Snipper />
-    if(ingredients){
+    if(props.ingredients){
         burger=(
             <Auxx>
-                <Burger ingredients={ingredients} />
+                <Burger ingredients={props.ingredients} />
                 <BuildControls
-                    addIngredient={addIngredientHandler}
-                    moveIngredient={moveIngredientHandler}
+                    addIngredient={props.onIngredientAdded}
+                    moveIngredient={props.onIngredientRemoved}
                     disabled={disableInfo}
-                    totalPrice={totalPrice}
-                    purchasable={totalPrice>4}
+                    totalPrice={props.price}
+                    purchasable={props.price>4}
                     ordered={orderedHandler}
                 />
             </Auxx>
         );
         orderSummary=  <OrderSummery
-            ingredients={ingredients}
+            ingredients={props.ingredients}
             modalClosed={purchaseCancelHandler}
             purchaseContinued={purchaseContinued}
-            totalPrice={totalPrice}
+            totalPrice={props.price}
         />
     }
+
 
     return (
 
@@ -173,4 +133,4 @@ const BurgerBuilder=()=> {
         </Aux>
     );
 }
-export default withRouter(BurgerBuilder);
+export default connect(mapStateToProps,mapDispatchToProps)(withErrorHandler(BurgerBuilder,axios));

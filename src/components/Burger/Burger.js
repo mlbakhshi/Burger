@@ -5,10 +5,7 @@ import { withRouter } from 'react-router-dom';
 const Burger=(props)=>{
     let result=3;
     let ingredientsInfo=null;
-    console.log(props.ingredients);
-    console.log(props.ingredients.totalPrice);
     let ingredients = props.ingredients.ingredients;
-    console.log(ingredients);
     if(props.ingredients.totalPrice){
         ingredientsInfo =
             props.ingredients.ingredients.map(ingredient =>
